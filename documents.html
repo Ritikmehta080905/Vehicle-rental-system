@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Upload Your Vehicle Images & Documents</title>
+    <style>
+        body { font-family: Arial, sans-serif; text-align: center; padding: 20px; }
+        .container { width: 50%; max-width: 500px; margin: auto; padding: 20px; border: 1px solid #ddd; border-radius: 10px; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); }
+        h2 { color: #333; }
+        input, button { margin: 10px; padding: 10px; font-size: 16px; width: 90%; }
+        button { cursor: pointer; background-color: #007bff; color: white; border: none; border-radius: 5px; }
+        button:hover { background-color: #0056b3; }
+        button:disabled { background-color: #cccccc; cursor: not-allowed; }
+        #status { margin-top: 15px; font-weight: bold; min-height: 20px; }
+        .error { color: #dc3545; }
+        .success { color: #28a745; }
+        .progress { color: #17a2b8; }
+    </style>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/dropbox.js/10.34.0/Dropbox-sdk.min.js"></script>
+</head>
+<body>
+
+    <div class="container">
+        <h2>Please Upload Your Vehicle Images and Documents Here</h2>
+        
+        <input type="text" id="userName" placeholder="Enter your name" required>
+        <input type="email" id="userEmail" placeholder="Enter your email" required>
+        <input type="tel" id="userContact" placeholder="Enter your contact number" required>
+        
+        <input type="file" id="fileInput" multiple>  <!-- Allows multiple file uploads -->
+        <button id="uploadBtn" onclick="uploadToDropbox()">Upload</button>
+        <p id="status"></p>
+    </div>
+
+    <div id="verificationMessage" style="display: none; padding: 20px; border: 1px solid #28a745; background: #e9f7ef; border-radius: 10px; text-align: center; margin-top: 20px;">
+        <h3>📩 Thank You for Uploading Your Documents!</h3>
+        <p>We have received your details and documents. Our team will verify them, and we will notify you via email about the next steps.</p>
+        <p>🚀 Sit tight, and we'll get back to you soon!</p>
+    </div>
+
+    <script>
+       
+    // Check if upload was successful and show verification message
+    if (localStorage.getItem("uploadSuccess") === "true") {
+        document.getElementById("verificationMessage").style.display = "block";
+        localStorage.removeItem("uploadSuccess"); // Clear flag after showing message
+    }
+
+
+        const DROPBOX_ACCESS_TOKEN = "sl.u.AFpTIv03oYs83gtVs7mfWKKSfo-Xj2jXdeQZMHf7MocFYJeQ8om-EeOIDZkZDqmu57fVP0A32MzLkY2OZnribpMAAJPUymmvnQ2-q-iEDM6VMn-vZWPM2HWTTapbXDMKEzv-hHWMi8ihbNkzgIhTapUfrZwHhwf3vyL7T5CC1GRjkI8IdRK7dZRNImAUzbSrZwzx3TMRYP9ml90Y-X7B-7YKPhmhBRgyfjREYzlWjjE2jpSY-pFtGy64xeNihxcVLhpyGgubCUSRD13mPNqUwuOwKZTNFMBgl7PUuZIeIWwbj4tfdafZSoHfFiwDYc0vAARsHLVoZl_Zz_3e3h3d0cL_lu_S4SBJy813VFFvQXX2q5qrHJIOJhdIJ-cO3O0Q93AMOLVKvJAoYy2huPTM4HRI2UEaf9ZDMVC-8d3beBu0TI8EPTfYrZpnivx7vg6HzKDVPvp5tGH5ijxvOUuyPIli0pbIT4pqqFuh_sjYKYny__lGhRBDWItiXrreAHwkYuaHRRmg_Fxc1ISMWrSpglPBrgFidFXzXy4W4t9b3EiKo4tvgp4lD2AjQl22xpWCJQ8dZc1dCPEMPpc6xrCAigzXzbeyasE-JOH5xw5AbvKZJg7tXeuWQU2eL2ieyxZNTotxmYoLb19GXFOr31XxXzFESgWAZu-5DihYLpIK5Q_xGlxy_VXaPlCEwBGj0sw3XA90dbeOQfrbEcbFI-5714pPui7Lxy7Siuxu_DmX5h4UfA2kNEJ1cOfmGGs2qgnMPUvqMDitfU8ZTYsmugHYOvKPWdRelRaYLnN-YLYKZHJ1duB7-nsi3qqbRLUcNPaN3Xfk_7P1Vd__SMjWdLUXazYJc1vTmmmu79rs7HY4VCTQmOH8AHVefbHY9q6dkyUS4y_9ig5pn-cr5t6376jRPLICYcEsHtesepmSBs-lynQfG6kB1QUmxQ65VlWFCT-emT-z6fV8Psj9nZ4T6fM8BgmWVjiErnlK2bBhNzhuBLnPlhqqMpYMtsZJ8xomuQ9lg6dL6C-Sy0ilrOQsPNazWzNqTFkCLLVXnceEFYKgYm3yWH07ZM5tvZF--umqm9ccLMLK81LzI39L-uLmwWBSzwwPiKycYXwI80_2ZlbHd0mPTnV1PkdvmVXIDLU_ijcP5FCEBPHGaU_wtHbolm3w7fSa6dZ0nI6Z5TgAWUF7xZv0VQttAdiZtYE4wSL-kk33RsnrhjOAR4EEhstwyP9KoFTnXyt3WRF3fFyYAbscQKiu9uGnhzN_scEapI2Fg0ysai02PGOPh_KGdeePF4DXgYXMBlyXAMm6jkAZjQ1T8_20l0QbHBDYh2vSO-YJzdjb7rI3ZSyLrfpecROtFoZPnLF3ekazCIOG4KZFbwePlroSPaUQ7vrq7SZtGcUdcSzG0rNurbRuxIJ7Y3qJ1Eqr9YxhUjVE-iyFas9cyMUpukf9BQ"; // 🔴 Replace with your valid token
+
+async function uploadToDropbox() {
+    const fileInput = document.getElementById("fileInput");
+    const userName = document.getElementById("userName").value.trim();
+    const userEmail = document.getElementById("userEmail").value.trim();
+    const userContact = document.getElementById("userContact").value.trim();
+    const statusElement = document.getElementById("status");
+    const files = fileInput.files;
+
+    if (!userName || !userEmail || !userContact) {
+        statusElement.innerText = "❌ Please fill in all details (Name, Email, Contact).";
+        return;
+    }
+
+    if (files.length === 0) {
+        statusElement.innerText = "❌ Please select at least one file.";
+        return;
+    }
+
+    if (!DROPBOX_ACCESS_TOKEN || DROPBOX_ACCESS_TOKEN.length < 20) {
+        statusElement.innerText = "❌ Invalid Dropbox token. Configure a valid token.";
+        return;
+    }
+
+    statusElement.innerText = "⏳ Uploading files...";
+    const dropbox = new Dropbox.Dropbox({
+        accessToken: DROPBOX_ACCESS_TOKEN,
+        fetch: window.fetch.bind(window)
+    });
+
+    try {
+        for (const file of files) {
+            const fileContent = await readFileAsArrayBuffer(file);
+            const sanitizedFileName = `${userName}_${Date.now()}_${file.name.replace(/[^\w.-]/g, "_")}`;
+            const filePath = `/uploads/${sanitizedFileName}`;
+
+            await dropbox.filesUpload({
+                path: filePath,
+                contents: fileContent,
+                mode: "overwrite"
+            });
+        }
+
+        await logUploadToDropbox(userName, userEmail, userContact);
+
+        statusElement.innerHTML = `✅ Successfully uploaded!`;
+                // Store flag in localStorage so documents.html knows upload was successful
+        localStorage.setItem("uploadSuccess", "true");
+
+        // Redirect after 2 seconds
+        setTimeout(() => {
+            window.location.href = "documents.html";
+        }, 2000);
+    } catch (error) {
+        console.error("Dropbox error:", error);
+        statusElement.innerText = "❌ Upload failed. Check console for details.";
+    }
+}
+
+// Helper function to read files
+function readFileAsArrayBuffer(file) {
+    return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => resolve(reader.result);
+        reader.onerror = () => reject(new Error("Failed to read file"));
+        reader.readAsArrayBuffer(file);
+    });
+}
+
+// Function to log uploads in a Dropbox file
+async function logUploadToDropbox(userName, userEmail, userContact) {
+    const dropbox = new Dropbox.Dropbox({
+        accessToken: DROPBOX_ACCESS_TOKEN,
+        fetch: window.fetch.bind(window)
+    });
+
+    const logEntry = `${new Date().toISOString()} - User Upload:\n` +
+                     `   Name: ${userName}\n` +
+                     `   Email: ${userEmail}\n` +
+                     `   Contact: ${userContact}\n\n`;
+
+    try {
+        // Read existing log file (if exists)
+        let existingLog = "";
+        try {
+            const response = await dropbox.filesDownload({ path: "/uploads/log.txt" });
+            existingLog = new TextDecoder().decode(response.result.fileBlob);
+        } catch (error) {
+            console.warn("Log file not found, creating a new one.");
+        }
+
+        // Append new log entry
+        const newLogContent = existingLog + logEntry;
+
+        // Upload updated log file
+        await dropbox.filesUpload({
+            path: "/uploads/log.txt",
+            contents: newLogContent,
+            mode: "overwrite"
+        });
+
+        console.log("📜 Log updated successfully!");
+    } catch (err) {
+        console.error("❌ Failed to update log:", err);
+    }
+}
+    </script>
+</body>
+</html>
