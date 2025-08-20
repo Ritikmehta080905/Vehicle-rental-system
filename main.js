@@ -78,26 +78,6 @@ bannerContent.forEach((item) => {
   banner.appendChild(duplicateNode);
 });
 
-// // Event listener for cards to navigate to different pages
-// document.addEventListener("DOMContentLoaded", function () {
-//   const cardElements = [
-//     { id: "bike-card", url: "bike.html" },
-//     { id: "car-card", url: "car.html" },
-//     { id: "truck-card", url: "truck.html" },
-//     { id: "bus-card", url: "bus.html" },
-//   ];
-
-//   cardElements.forEach(({ id, url }) => {
-//     const card = document.getElementById(id);
-//     if (card) {
-//       card.addEventListener("click", function () {
-//         window.location.href = url;
-//       });
-//     }
-//   });
-// });
-
-
 //admin
 async function fetchRenters() {
   const response = await fetch('http://localhost:5000/admin/renters');
@@ -152,3 +132,4 @@ L.marker([19.029714807212617, 73.01662163754607]).addTo(map)
   L.marker([19.029714807212617, 73.01662163754607], { icon: customIcon }).addTo(map)
       .bindPopup("Terna Engineering College");
   
+
