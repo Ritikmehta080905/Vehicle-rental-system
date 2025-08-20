@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Upload Your Vehicle Images & Documents</title>
+    <style>
+        body { font-family: Arial, sans-serif; text-align: center; padding: 20px; }
+        .container { width: 50%; max-width: 500px; margin: auto; padding: 20px; border: 1px solid #ddd; border-radius: 10px; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); }
+        h2 { color: #333; }
+        input, button { margin: 10px; padding: 10px; font-size: 16px; width: 90%; }
+        button { cursor: pointer; background-color: #007bff; color: white; border: none; border-radius: 5px; }
+        button:hover { background-color: #0056b3; }
+        button:disabled { background-color: #cccccc; cursor: not-allowed; }
+        #status { margin-top: 15px; font-weight: bold; min-height: 20px; }
+        .error { color: #dc3545; }
+        .success { color: #28a745; }
+        .progress { color: #17a2b8; }
+        .back-button {
+        background-color: #6c757d; /* Bootstrap's secondary grey */
+        color: white;
+        border: none;
+        border-radius: 5px;
+        padding: 10px;
+        font-size: 16px;
+        width: 90%;
+        cursor: pointer;
+        margin-top: 10px;
+}
+
+.back-button:hover {
+    background-color: #5a6268;
+}
+
+    </style>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/dropbox.js/10.34.0/Dropbox-sdk.min.js"></script>
+</head>
+<body>
+
+    <div class="container">
+        <h2>Please Upload Your Vehicle Images and Documents Here</h2>
+        
+        <input type="text" id="userName" placeholder="Enter your name" required>
+        <input type="email" id="userEmail" placeholder="Enter your email" required>
+        <input type="tel" id="userContact" placeholder="Enter your contact number" required>
+        
+        <input type="file" id="fileInput" multiple>  <!-- Allows multiple file uploads -->
+        <button id="uploadBtn" onclick="uploadToDropbox()">Upload</button>
+        <br>
+        <button class="back-button" onclick="window.location.href='rental.html'">Back</button>
+        <p id="status"></p>
+    </div>
+
+    <div id="verificationMessage" style="display: none; padding: 20px; border: 1px solid #28a745; background: #e9f7ef; border-radius: 10px; text-align: center; margin-top: 20px;">
+        <h3>📩 Thank You for Uploading Your Documents!</h3>
+        <p>We have received your details and documents. Our team will verify them, and we will notify you via email about the next steps.</p>
+        <p>🚀 Sit tight, and we'll get back to you soon!</p>
+    </div>
+
+    <script>
+       
+    // Check if upload was successful and show verification message
+    if (localStorage.getItem("uploadSuccess") === "true") {
+        document.getElementById("verificationMessage").style.display = "block";
+        localStorage.removeItem("uploadSuccess"); // Clear flag after showing message
+
+        setTimeout(() => {
+        window.location.href = "index.html"; // ✅ Redirect after 3.5 seconds
+    }, 3500);
+}
+    
+
+
+        const DROPBOX_ACCESS_TOKEN = "sl.u.AFpKiYSduqSjnf8nGlMP18GP-dYBGQyAFTl64Xq5JZ-SfTyBfOukkHALO2VU7d9lq7K9p3zQy6CG0LKZsmkkAbBjvDe71a0yATLg62Z1M551P3v9U1-vFlWciKr5DedMlvCe8Ad8xwg5y91JlLqyvtsDDHVIpfj9e9BrpirYop4bQ818bRxaFsVWHn59s2at3YHOctJAO0pFQZQ1OSAXit8kXQihrdMaCteUIJY4_rsUAejhoLVWIrwRup7JXxgvUWUSvqtUh8JFywt1afmirSmjgLuEaLlDpXKZdCchOcKEeEO2rszP9TddAj6oow8Nf3W8rXRthBrcm1lWKld_wRVN94m-I7k7sWqbhf3GnHsLGPlmdcxHiATLrFymTxltVot-VlyCQQg_SL6T2pLIvxmmu2S73jcDK2CSezZ7q75byXYwnF86VXnnu6aAmVohMpJ-KkEPugSLFxaCnI8SKLBnn6jYGTWeToWv36_fejmUTsWp-xuGnUmTv_oeHJAMmlWcEHcZbKpXcRP4sTkMtFGjU8RjQFCNn5l-gGILtKMcnYFztqGevzajUoBjfwVAvTnNBVKF3VN77gBOaaIdhS3iRDfP-g4OI5lzlpja-V9lx2WmO2qe38hQz_1Hi7tdMZy54wpglodulPkuQK1__L0dFujhWUSJM48QjuQJInGAQ05HRZVvug0dDdAFIQUmFBPwXYq5QOVA0RbQKwb44HgCGtk1KvsrHKiQ58FEZywmBN7os1-mrNupMQ07H2E_r0vd9tg5ubnblXW5qzqAotzJmr5-QxKNlzdpH3B1A-xuY_IJ_wRmealJqgjOxG_I5BA3RnZHGswthnt2fL8RO2ogtXYSDSizhrKh3XxaQQ-FpHuHv-NeLIQj3NUTVMl_wF5x9qE57GkcFuO46nz-KDylbWaleUnB1jY-0gurhvaZWlBcYIPzhzgv4qxPBFn-OQkIMRAc8P1KNgRli9GQMLIvnbhIkX83D0p5JwBMJIzfnqqtiHWOKuvu323YhjfLoMEpciamKBDVX_7w6L60ZEnTOPh5mkWFZt-3KEaVt6GAWApYM72d3NiL4HyGii-osX7PlCaT2rXHYWN4Gq_1Ghz8qnV6ZeJ4-Wv5sqChqO7XwI5VBw5wlIXh1HgR4El6mwbg2uUKbwcGeqiPAVwA8ki9wCfA2emBhsVvs3Po9X79sq8A6QxuLYk-uegYLowP-0qmzy2aGMOc0hKJyio1WBZuPMEg0FWz5i1cXGfEYZ-1F-MTzM9x8mRRpd5Easuh5XwQ8chTwuDKhm6NAVY_Cx2Sbm1SClu5Ikq6NmNqJQPU2APclCepU0TDZWZVq3_KyovsAUq6U9QGQaRzljQpDq9qFEaVY3B5XYmD1tOCO6dAs2XA8fIOZlmouLhJtlc6gNP1xR4QmWR_GWiKTp753yu8t2Mx4bPRVCv8uvhFMQBD-Q"; // 🔴 Replace with your valid token
+
+async function uploadToDropbox() {
+    const fileInput = document.getElementById("fileInput");
+    const userName = document.getElementById("userName").value.trim();
+    const userEmail = document.getElementById("userEmail").value.trim();
+    const userContact = document.getElementById("userContact").value.trim();
+    const statusElement = document.getElementById("status");
+    const files = fileInput.files;
+
+    if (!userName || !userEmail || !userContact) {
+        statusElement.innerText = "❌ Please fill in all details (Name, Email, Contact).";
+        return;
+    }
+
+    if (files.length === 0) {
+        statusElement.innerText = "❌ Please select at least one file.";
+        return;
+    }
+
+    if (!DROPBOX_ACCESS_TOKEN || DROPBOX_ACCESS_TOKEN.length < 20) {
+        statusElement.innerText = "❌ Invalid Dropbox token. Configure a valid token.";
+        return;
+    }
+
+    statusElement.innerText = "⏳ Uploading files...";
+    const dropbox = new Dropbox.Dropbox({
+        accessToken: DROPBOX_ACCESS_TOKEN,
+        fetch: window.fetch.bind(window)
+    });
+
+    try {
+        for (const file of files) {
+            const fileContent = await readFileAsArrayBuffer(file);
+            const sanitizedFileName = `${userName}_${Date.now()}_${file.name.replace(/[^\w.-]/g, "_")}`;
+            const filePath = `/uploads/${sanitizedFileName}`;
+
+            await dropbox.filesUpload({
+                path: filePath,
+                contents: fileContent,
+                mode: "overwrite"
+            });
+        }
+
+        await logUploadToDropbox(userName, userEmail, userContact);
+
+        statusElement.innerHTML = `✅ Successfully uploaded!`;
+                // Store flag in localStorage so documents.html knows upload was successful
+        localStorage.setItem("uploadSuccess", "true");
+
+        // Redirect after 2 seconds
+        setTimeout(() => {
+            window.location.href = "documents.html";
+        }, 2000);
+    } catch (error) {
+        console.error("Dropbox error:", error);
+        statusElement.innerText = "❌ Upload failed. Check console for details.";
+    }
+}
+
+// Helper function to read files
+function readFileAsArrayBuffer(file) {
+    return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => resolve(reader.result);
+        reader.onerror = () => reject(new Error("Failed to read file"));
+        reader.readAsArrayBuffer(file);
+    });
+}
+
+// Function to log uploads in a Dropbox file
+async function logUploadToDropbox(userName, userEmail, userContact) {
+    const dropbox = new Dropbox.Dropbox({
+        accessToken: DROPBOX_ACCESS_TOKEN,
+        fetch: window.fetch.bind(window)
+    });
+
+    const logEntry = `${new Date().toISOString()} - User Upload:\n` +
+                     `   Name: ${userName}\n` +
+                     `   Email: ${userEmail}\n` +
+                     `   Contact: ${userContact}\n\n`;
+
+    try {
+        // Read existing log file (if exists)
+        let existingLog = "";
+        try {
+            const response = await dropbox.filesDownload({ path: "/uploads/log.txt" });
+            existingLog = new TextDecoder().decode(response.result.fileBlob);
+        } catch (error) {
+            console.warn("Log file not found, creating a new one.");
+        }
+
+        // Append new log entry
+        const newLogContent = existingLog + logEntry;
+
+        // Upload updated log file
+        await dropbox.filesUpload({
+            path: "/uploads/log.txt",
+            contents: newLogContent,
+            mode: "overwrite"
+        });
+
+        console.log("📜 Log updated successfully!");
+    } catch (err) {
+        console.error("❌ Failed to update log:", err);
+    }
+}
+
+
+
+    </script>
+</body>
+</html>

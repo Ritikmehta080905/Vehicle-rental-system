@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Manual Payment</title>
+    <style>
+        /* Google Font */
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap');
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Poppins', sans-serif;
+        }
+
+       body {
+    background: linear-gradient(to right, #4b83c3, #3c6278); /* Updated Gradient */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    padding: 20px;
+}
+
+
+        .container {
+            background: rgba(255, 255, 255, 0.2);
+            padding: 30px;
+            width: 420px;
+            text-align: center;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+            backdrop-filter: blur(10px);
+            color: white;
+        }
+
+        h2 {
+            font-size: 24px;
+            font-weight: 600;
+            margin-bottom: 15px;
+        }
+
+        .payment-details {
+            text-align: left;
+            margin-bottom: 20px;
+            padding: 15px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 8px;
+        }
+
+        .payment-details p {
+            font-size: 16px;
+            margin: 6px 0;
+        }
+
+        .qr-code {
+            width: 200px;
+            height: 200px;
+            margin: 10px auto;
+            display: block;
+            border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+        }
+
+        input, button {
+            width: 100%;
+            padding: 12px;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+
+        .submit-btn {
+            background: #4CAF50;
+            color: white;
+        }
+
+        .submit-btn:hover {
+            background: #45a049;
+            transform: scale(1.05);
+        }
+
+        .back-btn {
+            background: #ccc;
+            color: black;
+        }
+
+        .back-btn:hover {
+            background: #bbb;
+            transform: scale(1.05);
+        }
+
+        #status {
+            margin-top: 15px;
+            font-weight: bold;
+            color: white;
+            min-height: 20px;
+        }
+
+        .error { color: #dc3545; }
+        .success { color: #28a745; }
+        .progress { color: #17a2b8; }
+
+        .hidden { display: none; }
+
+        @media (max-width: 480px) {
+            .container { width: 90%; }
+        }
+    </style>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/dropbox.js/10.34.0/Dropbox-sdk.min.js"></script>
+</head>
+<body>
+
+    <div class="container">
+        <h2>Complete Your Payment</h2>
+
+        <div class="payment-details">
+            <p><strong>UPI ID:</strong> ritikrajput619123456@okaxis</p>
+            <p><strong>Bank Name:</strong> Bank of Baroda</p>
+            <p><strong>Account Number:</strong> 27820100015584</p>
+            <p><strong>IFSC Code:</strong> BARB0MAHULH</p>
+        </div>
+
+        <img src="assets/QR.jpeg" alt="Scan QR to Pay" class="qr-code">
+
+        <p><strong>Upload Payment Screenshot:</strong></p>
+        <input type="file" id="paymentScreenshot" accept="image/*">
+
+        <button class="submit-btn" id="uploadBtn">Submit Payment</button>
+        <button class="back-btn" id="back-btn">Back</button>
+
+        <p id="status"></p>
+    </div>
+
+    <script>
+        const DROPBOX_ACCESS_TOKEN = "sl.u.AFpKiYSduqSjnf8nGlMP18GP-dYBGQyAFTl64Xq5JZ-SfTyBfOukkHALO2VU7d9lq7K9p3zQy6CG0LKZsmkkAbBjvDe71a0yATLg62Z1M551P3v9U1-vFlWciKr5DedMlvCe8Ad8xwg5y91JlLqyvtsDDHVIpfj9e9BrpirYop4bQ818bRxaFsVWHn59s2at3YHOctJAO0pFQZQ1OSAXit8kXQihrdMaCteUIJY4_rsUAejhoLVWIrwRup7JXxgvUWUSvqtUh8JFywt1afmirSmjgLuEaLlDpXKZdCchOcKEeEO2rszP9TddAj6oow8Nf3W8rXRthBrcm1lWKld_wRVN94m-I7k7sWqbhf3GnHsLGPlmdcxHiATLrFymTxltVot-VlyCQQg_SL6T2pLIvxmmu2S73jcDK2CSezZ7q75byXYwnF86VXnnu6aAmVohMpJ-KkEPugSLFxaCnI8SKLBnn6jYGTWeToWv36_fejmUTsWp-xuGnUmTv_oeHJAMmlWcEHcZbKpXcRP4sTkMtFGjU8RjQFCNn5l-gGILtKMcnYFztqGevzajUoBjfwVAvTnNBVKF3VN77gBOaaIdhS3iRDfP-g4OI5lzlpja-V9lx2WmO2qe38hQz_1Hi7tdMZy54wpglodulPkuQK1__L0dFujhWUSJM48QjuQJInGAQ05HRZVvug0dDdAFIQUmFBPwXYq5QOVA0RbQKwb44HgCGtk1KvsrHKiQ58FEZywmBN7os1-mrNupMQ07H2E_r0vd9tg5ubnblXW5qzqAotzJmr5-QxKNlzdpH3B1A-xuY_IJ_wRmealJqgjOxG_I5BA3RnZHGswthnt2fL8RO2ogtXYSDSizhrKh3XxaQQ-FpHuHv-NeLIQj3NUTVMl_wF5x9qE57GkcFuO46nz-KDylbWaleUnB1jY-0gurhvaZWlBcYIPzhzgv4qxPBFn-OQkIMRAc8P1KNgRli9GQMLIvnbhIkX83D0p5JwBMJIzfnqqtiHWOKuvu323YhjfLoMEpciamKBDVX_7w6L60ZEnTOPh5mkWFZt-3KEaVt6GAWApYM72d3NiL4HyGii-osX7PlCaT2rXHYWN4Gq_1Ghz8qnV6ZeJ4-Wv5sqChqO7XwI5VBw5wlIXh1HgR4El6mwbg2uUKbwcGeqiPAVwA8ki9wCfA2emBhsVvs3Po9X79sq8A6QxuLYk-uegYLowP-0qmzy2aGMOc0hKJyio1WBZuPMEg0FWz5i1cXGfEYZ-1F-MTzM9x8mRRpd5Easuh5XwQ8chTwuDKhm6NAVY_Cx2Sbm1SClu5Ikq6NmNqJQPU2APclCepU0TDZWZVq3_KyovsAUq6U9QGQaRzljQpDq9qFEaVY3B5XYmD1tOCO6dAs2XA8fIOZlmouLhJtlc6gNP1xR4QmWR_GWiKTp753yu8t2Mx4bPRVCv8uvhFMQBD-Q";  // 🔴 Replace with your valid token
+
+        document.getElementById("uploadBtn").addEventListener("click", uploadPaymentScreenshot);
+        document.getElementById("back-btn").addEventListener("click", () => window.location.href = "payment.html");
+
+        async function uploadPaymentScreenshot() {
+            const fileInput = document.getElementById("paymentScreenshot");
+            const statusElement = document.getElementById("status");
+            const files = fileInput.files;
+
+            if (files.length === 0) {
+                statusElement.innerHTML = "❌ Please select a payment screenshot.";
+                return;
+            }
+
+            if (!DROPBOX_ACCESS_TOKEN) {
+                statusElement.innerHTML = "❌ Dropbox access token is missing!";
+                return;
+            }
+
+            statusElement.innerHTML = "⏳ Uploading screenshot...";
+            const dropbox = new Dropbox.Dropbox({
+                accessToken: DROPBOX_ACCESS_TOKEN,
+                fetch: window.fetch.bind(window)
+            });
+
+            try {
+                const file = files[0];
+                const fileContent = await readFileAsArrayBuffer(file);
+                const sanitizedFileName = `payment_${Date.now()}_${file.name.replace(/[^\w.-]/g, "_")}`;
+                const filePath = `/payments/${sanitizedFileName}`;
+
+                await dropbox.filesUpload({
+                    path: filePath,
+                    contents: fileContent,
+                    mode: "overwrite"
+                });
+
+                await logPaymentToDropbox(sanitizedFileName);
+
+                statusElement.innerHTML = "✅ Payment screenshot uploaded successfully!";
+                showThankYouPopup();
+            } catch (error) {
+                console.error("Dropbox error:", error);
+                statusElement.innerHTML = "❌ Upload failed. Check console for details.";
+            }
+        }
+
+        // Helper function to read file as ArrayBuffer
+        function readFileAsArrayBuffer(file) {
+            return new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.onload = () => resolve(reader.result);
+                reader.onerror = () => reject(new Error("Failed to read file"));
+                reader.readAsArrayBuffer(file);
+            });
+        }
+
+        // Function to log payment in a Dropbox file
+        async function logPaymentToDropbox(fileName) {
+            const dropbox = new Dropbox.Dropbox({
+                accessToken: DROPBOX_ACCESS_TOKEN,
+                fetch: window.fetch.bind(window)
+            });
+
+            const logEntry = `${new Date().toISOString()} - Payment Uploaded:\n` +
+                             `   File: ${fileName}\n\n`;
+
+            try {
+                let existingLog = "";
+                try {
+                    const response = await dropbox.filesDownload({ path: "/payments/payment_log.txt" });
+                    existingLog = new TextDecoder().decode(response.result.fileBlob);
+                } catch (error) {
+                    console.warn("Log file not found, creating a new one.");
+                }
+
+                const newLogContent = existingLog + logEntry;
+
+                await dropbox.filesUpload({
+                    path: "/payments/payment_log.txt",
+                    contents: newLogContent,
+                    mode: "overwrite"
+                });
+
+                console.log("📜 Payment log updated successfully!");
+            } catch (err) {
+                console.error("❌ Failed to update payment log:", err);
+            }
+        }
+
+        function showThankYouPopup() {
+    const popup = document.createElement("div");
+    popup.innerHTML = `
+        <strong>🎉 Thank You!</strong><br>
+        Your payment has been received and is being verified.<br>
+        Redirecting to the homepage...
+    `;
+    Object.assign(popup.style, {
+        position: "fixed",
+        top: "20px",
+        left: "50%",
+        transform: "translateX(-50%)",
+        background: "#fff9c4",
+        color: "#333",
+        padding: "20px",
+        borderRadius: "10px",
+        boxShadow: "0 4px 12px rgba(0,0,0,0.2)",
+        zIndex: "1000",
+        textAlign: "center",
+        fontWeight: "600",
+        fontSize: "14px",
+        opacity: "0",
+        transition: "opacity 0.3s ease-in-out"
+    });
+
+    document.body.appendChild(popup);
+    setTimeout(() => popup.style.opacity = "1", 100); // Fade in
+    setTimeout(() => {
+        popup.style.opacity = "0"; // Fade out
+        setTimeout(() => {
+            document.body.removeChild(popup);
+            window.location.href = "index.html"; // Redirect to homepage
+        }, 500); // Give time for fade-out animation
+    }, 3500); // Show for 3.5 seconds
+}
+
+    </script>
+
+
+</body>
+</html>

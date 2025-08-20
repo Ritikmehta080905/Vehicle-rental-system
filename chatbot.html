@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Vehicle Rental Chatbot</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f4f7fa;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+    }
+
+    #chat-container {
+      width: 600px; /* Enlarged width */
+      background: white;
+      padding: 20px;
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+    }
+
+    h2 {
+      text-align: center;
+      color: #007bff;
+      margin-bottom: 20px;
+    }
+
+    #chat-box {
+      height: 340px;
+      overflow-y: auto;
+      border: 1px solid #ddd;
+      padding: 10px;
+      border-radius: 8px;
+      margin-bottom: 10px;
+      background-color: #fefefe;
+    }
+
+    #chat-box div {
+      margin-bottom: 10px;
+    }
+
+    #userInput {
+      width: 70%;
+      padding: 8px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+    }
+
+    button {
+      width: 25%;
+      padding: 9px;
+      background-color: #007bff;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      margin-left: 5px;
+    }
+
+    button:hover {
+      background-color: #0056b3;
+    }
+
+    .faq-buttons {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 15px;
+    }
+
+    .faq-buttons button {
+      flex: 1 1 45%;
+      background-color: #e0eaff;
+      color: #003e7e;
+      font-size: 13px;
+      padding: 8px;
+      border-radius: 6px;
+      border: none;
+      cursor: pointer;
+    }
+
+    .faq-buttons button:hover {
+      background-color: #c5daff;
+    }
+
+    .back-button {
+      display: block;
+      margin: 20px auto;
+      padding: 10px 20px;
+      background-color: #4CAF50;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+
+    .back-button:hover {
+      background-color: #45a049;
+    }
+  </style>
+</head>
+<body>
+
+  <div id="chat-container">
+    <h2>🚗 Vehicle Rental Assistant</h2>
+    <div id="chat-box"></div>
+    <div>
+      <input type="text" id="userInput" placeholder="Ask me anything..." />
+      <button onclick="sendMsg()">Send</button>
+    </div>
+
+    <!-- FAQ Buttons -->
+    <div class="faq-buttons">
+      <button onclick="faqClick('I want to book a vehicle')">Book a vehicle</button>
+      <button onclick="faqClick('What is the pricing?')">Pricing</button>
+      <button onclick="faqClick('What are the available locations?')">Locations</button>
+      <button onclick="faqClick('How to choose a location?')">Choose Location</button>
+      <button onclick="faqClick('How does payment work?')">Payment</button>
+      <button onclick="faqClick('How to list my vehicle?')">List Vehicle</button>
+      <button onclick="faqClick('How does the website work?')">How it works</button>
+      <button onclick="faqClick('Contact Us')">Contact</button>
+      <button onclick="faqClick('Social Media')">Social Media</button>
+    </div>
+
+    <!-- Back Button -->
+    <button class="back-button" onclick="goBack()">Back</button>
+
+  </div>
+
+  <script>
+    // Back Button Function
+    function goBack() {
+      window.history.back();
+    }
+
+    const responses = [
+      {
+        keywords: ["book", "booking", "rent", "reserve"],
+        response: "We have 4 options: 🚗 Car, 🛵 Bike, 🚌 Bus, 🚚 Truck. Which one are you interested in?"
+      },
+      {
+        keywords: ["car"],
+        response: "We have Swift, Fortuner, Mercedes and many more. Want more options? Visit the Book section of our site!"
+      },
+      {
+        keywords: ["bike"],
+        response: "Available options: Royal Enfield, Activa, Honda City and many more. Explore more under Book section!"
+      },
+      {
+        keywords: ["bus"],
+        response: "You can rent Mini Bus, Traveller, Volvo and many more. More in the Book section!"
+      },
+      {
+        keywords: ["truck"],
+        response: "We have Pickup Truck, Loading Van, Tata 407 and many more. More trucks in Book section!"
+      },
+      {
+        keywords: ["price", "pricing", "cost", "rate"],
+        response: "Vehicles are charged per day or per hour. On average: ₹500/day for bikes, ₹1300/day for cars. Full details on our site!"
+      },
+      {
+        keywords: ["location", "available locations", "cities", "areas"],
+        response: "Our services are available all over India. 🇮🇳"
+      },
+      {
+        keywords: ["pickup", "drop", "pickup location", "drop location"],
+        response: "You can pick up and drop off at any of our locations. Check the map on our site for details! 🗺️(Note:Pickup and Drop both locations are same)"
+      },
+      {
+        keywords: ["choose location", "how to select location", "map", "pickup location"],
+        response: "Go to Rent Out → Choose vehicle → Select model → Pick location from map."
+      },
+      {
+        keywords: ["payment", "pay", "checkout", "methods"],
+        response: "We accept UPI, Debit/Credit Cards, Net Banking, and Wallets. 💳 Payments are secure!"
+      },
+      {
+        keywords: ["listing", "list my vehicle", "upload", "documents", "rent out"],
+        response: "To list your vehicle, upload documents and photos. Our team will review and send a confirmation email. ✅"
+      },
+      {
+        keywords: ["how does website work", "how to use", "how does the website work", "guide"],
+        response: "Quick guide: 🔹 Home → Browse vehicles 🔹 Rent Out → List your vehicle 🔹 Profile → Manage bookings 🔹 Help → Support & FAQs"
+      },
+      {
+        keywords: ["contact", "support", "customer service", "help"],
+        response: "📞 You can reach us via the 'Contact Us' page for queries, complaints or support. We're here for you!"
+      },
+      {
+        keywords: ["social media", "instagram", "facebook", "twitter"],
+        response: "📱 Follow us: Instagram: @vehirent | Facebook: /vehirent | Twitter: @vehirent"
+      },
+      {
+        keywords: ["hello", "hi", "hey", "good morning", "good evening"],
+        response: "Hey there! 👋 How can I assist you today with your vehicle rental?"
+      },
+      {
+        keywords: ["thanks", "thank you", "appreciate", "good"],
+        response: "You're welcome! 😊 Let me know if you have more questions."
+      }
+    ];
+
+    function sendMsg() {
+      const input = document.getElementById("userInput");
+      const msg = input.value.trim();
+      if (!msg) return;
+
+      const chatBox = document.getElementById("chat-box");
+      chatBox.innerHTML += `<div><strong>You:</strong> ${msg}</div>`;
+      input.value = "";
+
+      const reply = getReply(msg.toLowerCase());
+      chatBox.innerHTML += `<div><strong>Bot:</strong> ${reply}</div>`;
+      chatBox.scrollTop = chatBox.scrollHeight;
+    }
+
+    function faqClick(text) {
+      const chatBox = document.getElementById("chat-box");
+      chatBox.innerHTML += `<div><strong>You:</strong> ${text}</div>`;
+      const reply = getReply(text.toLowerCase());
+      chatBox.innerHTML += `<div><strong>Bot:</strong> ${reply}</div>`;
+      chatBox.scrollTop = chatBox.scrollHeight;
+    }
+
+    function getReply(userMsg) {
+      for (let r of responses) {
+        for (let keyword of r.keywords) {
+          if (userMsg.includes(keyword)) {
+            return r.response;
+          }
+        }
+      }
+      return "Sorry, I didn’t catch that. Try asking about bookings, prices, locations, payments, or how the site works.";
+    }
+  </script>
+
+</body>
+</html>
