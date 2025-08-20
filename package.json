@@ -8,15 +8,15 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/Gayatrii0911/Vehicle-Rental.git"
+    "url": "git+https://github.com/Ritikmehta0809/Vehicle-rental-system.git"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/Gayatrii0911/Vehicle-Rental/issues"
+    "url": "https://github.com/Ritikmehta0809/Vehicle-rental-system/issues"
   },
-  "homepage": "https://github.com/Gayatrii0911/Vehicle-Rental#readme",
+  "homepage": "https://github.com/Ritikmehta0809/Vehicle-rental-system#readme",
   "dependencies": {
     "body-parser": "^1.20.3",
     "cors": "^2.8.5",
