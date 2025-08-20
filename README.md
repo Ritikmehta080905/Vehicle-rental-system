@@ -92,29 +92,19 @@ Razorpay – online payment processing
 
 ⚙️ Setup Instructions
 
-Clone the repository
-
-git clone https://github.com/yourusername/vehicle-rental-system.git
+Clone the repository:git clone https://github.com/yourusername/vehicle-rental-system.git
 cd vehicle-rental-system
-
 
 Install dependencies
 npm install
 
 Configure .env file
-
 DB_HOST=localhost  
 DB_USER=root  
 DB_PASS=yourpassword  
-DB_NAME=vehiclerental  
-JWT_SECRET=your_secret_key  
+DB_NAME=vehiclerental   
 PORT=5000  
-
 
 Start the backend server
 npm start
 
-
-Open the frontend
-Run index.html in a browser.
-API will be available at: http://localhost:5000.
