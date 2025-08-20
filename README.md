@@ -31,33 +31,34 @@ The system allows customers to browse and rent vehicles, listers to add their ve
 - Oversee all **bookings and payments**.  
 
 ---
-
-## 🖥️ How It Works  
-
-### 🔄 User Flow  
-
-```mermaid
+🔄 User Flow
 flowchart TD
-    A[User Signup/Login] --> B[Browse Vehicles]
-    B --> C[Select Vehicle & Dates]
-    C --> D[Submit Booking Request]
-    D --> E{Payment Option}
-    E -->|Online Payment| F[Razorpay Gateway]
-    E -->|Manual Payment| G[Upload Screenshot]
-    F --> H[Booking Confirmed]
-    G --> I[Admin Verification]
-    I --> H[Booking Confirmed]
-    H --> J[EmailJS Notification Sent]
-    J --> K[Vehicle Pickup/Usage]
+    A[Start: User Signup/Login] --> B[Homepage - Browse Vehicles]
+    B --> C[Select Vehicle Category (Car/Bike/Bus/Truck)]
+    C --> D[View Vehicle Details (Price, Model, Location, Availability)]
+    D --> E[Choose Rental Dates & Fill Booking Form]
+    E --> F[Submit Booking Request]
+    F --> G{Select Payment Method}
+    G -->|Online Payment| H[Razorpay Secure Payment]
+    G -->|Manual Payment| I[Upload Payment Screenshot]
+    H --> J[Payment Success → Booking Confirmed]
+    I --> K[Admin Reviews Payment Proof]
+    K -->|Approved| J[Booking Confirmed]
+    K -->|Rejected| L[Booking Cancelled → Retry Payment]
+    J --> M[Email Confirmation via EmailJS]
+    M --> N[Vehicle Ready for Pickup/Usage]
+    N --> O[End]
 
-Step 1: User registers and logs in.
-Step 2: User browses available vehicles (cars, bikes, buses, trucks).
-step 3: User selects a vehicle and rental dates.
-Step 4: Booking request is created.
-Step 5: User pays via Razorpay (instant) or Manual (admin verification).
-Step 6: On confirmation, booking is marked as successful.
-Step 7: EmailJS sends confirmation mail to the user.
-Step 8: Vehicle is rented.
+📋 Step-by-Step Explanation
+
+1.Signup/Login → User registers or logs in securely.
+2.Browse Vehicles → User navigates through Cars, Bikes, Buses, and Trucks.
+3.View Details → User checks vehicle info (model, price, location, availability).
+4.Booking Form → User selects rental dates and submits booking request.
+5.Payment →Online (Razorpay): Instant confirmation if successful.
+6.Manual: User uploads proof → Admin verifies → Booking is confirmed/rejected.
+7.Booking Confirmation → User gets confirmation email via EmailJS.
+8.Vehicle Pickup → User collects and uses the rented vehicle.
 
 📂 Project Structure
 ├── admin.html          # Admin dashboard  
